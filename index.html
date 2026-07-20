@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة تحكم الإدارة | منصة ألعاب الأطفال</title>
+  
+  <!-- CSS -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/advanced.css">
+  
+  <!-- Icons (Boxicons) -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    .dropdown-item:hover { background-color: var(--bg-hover) !important; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- Login Container -->
+  <div id="login-container" class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="brand-icon"><i class='bx bx-joystick'></i></div>
+        <h2>تسجيل الدخول للمدير</h2>
+        <p>الرجاء إدخال بيانات الاعتماد للوصول إلى لوحة التحكم</p>
+      </div>
+
+      <div id="login-error" class="login-error-area">
+        <i class='bx bx-error-circle'></i>
+        <span id="login-error-msg"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="login-username">اسم المستخدم</label>
+        <input type="text" id="login-username" class="form-control" placeholder="أدخل اسم المستخدم" autocomplete="username">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="login-password">كلمة المرور</label>
+        <div class="password-input-container">
+          <input type="password" id="login-password" class="form-control" placeholder="أدخل كلمة المرور" autocomplete="current-password">
+          <button type="button" id="btn-toggle-password" class="btn-toggle-password">
+            <i class='bx bx-show' id="toggle-password-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="login-options">
+        <input type="checkbox" id="login-remember">
+        <label for="login-remember">تذكرني</label>
+      </div>
+
+      <button id="btn-login-submit" class="btn btn-primary" style="width: 100%; height: 44px; font-size: 15px;">تسجيل الدخول</button>
+    </div>
+  </div>
+
+  <div class="app-container" style="display: none;">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <div class="brand-icon"><i class='bx bx-joystick'></i></div>
+          <span class="menu-text">لوحة الإدارة</span>
+        </div>
+      </div>
+      
+      <ul class="sidebar-menu">
+        <li class="menu-item active" data-view="home-manager">
+          <i class='bx bx-home menu-icon'></i>
+          <span class="menu-text">الصفحة الرئيسية</span>
+        </li>
+        <li class="menu-item" data-view="games">
+          <i class='bx bx-joystick menu-icon'></i>
+          <span class="menu-text">الألعاب</span>
+        </li>
+        <li class="menu-item" data-view="categories">
+          <i class='bx bx-folder menu-icon'></i>
+          <span class="menu-text">الأقسام</span>
+        </li>
+        <li class="menu-item" data-view="banners">
+          <i class='bx bx-image menu-icon'></i>
+          <span class="menu-text">البنرات</span>
+        </li>
+        <li class="menu-item" data-view="statistics">
+          <i class='bx bx-bar-chart-alt-2 menu-icon'></i>
+          <span class="menu-text">الإحصائيات</span>
+        </li>
+        <li class="menu-item" data-view="settings">
+          <i class='bx bx-cog menu-icon'></i>
+          <span class="menu-text">الإعدادات</span>
+        </li>
+      </ul>
+
+      <div class="logout-container">
+        <li class="menu-item logout">
+          <i class='bx bx-log-out menu-icon'></i>
+          <span class="menu-text">تسجيل الخروج</span>
+        </li>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="toggle-sidebar" id="toggle-sidebar">
+            <i class='bx bx-menu'></i>
+          </button>
+          <h1 class="page-title" id="page-title">الرئيسية</h1>
+        </div>
+        
+        <div class="topbar-right">
+          <div class="search-box">
+            <i class='bx bx-search search-icon'></i>
+            <input type="text" placeholder="ابحث عن الألعاب، الأقسام...">
+          </div>
+          
+          <div class="topbar-actions">
+            <div class="admin-profile" id="admin-profile-btn" style="position: relative; cursor: pointer;">
+              <img src="https://ui-avatars.com/api/?name=مدير+النظام&background=4F46E5&color=fff" alt="المدير" class="avatar" id="admin-avatar-img">
+              <div class="admin-info">
+                <span class="admin-name" id="admin-name-text">مدير النظام</span>
+                <span class="admin-role" id="admin-role-text">مدير عام</span>
+                <span class="admin-email" id="admin-email-text" style="font-size: 11px; opacity: 0.8;">admin@example.com</span>
+              </div>
+              <i class='bx bx-chevron-down' style="color: var(--text-muted)"></i>
+              
+              <!-- Profile Dropdown -->
+              <div class="profile-dropdown" id="profile-dropdown" style="display: none; position: absolute; top: 100%; left: 0; background: var(--bg-card); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border-light); width: 200px; margin-top: 8px; z-index: 1000; overflow: hidden; flex-direction: column;">
+                <div class="dropdown-item" id="btn-edit-profile" style="padding: 12px 16px; display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 14px; transition: background 0.2s;">
+                  <i class='bx bx-user' style="font-size: 18px; color: var(--primary);"></i> تعديل الملف الشخصي
+                </div>
+                <div class="dropdown-item" id="btn-change-password" style="padding: 12px 16px; display: flex; align-items: center; gap: 8px; color: var(--text-main); font-size: 14px; transition: background 0.2s;">
+                  <i class='bx bx-lock-alt' style="font-size: 18px; color: var(--warning);"></i> تغيير كلمة المرور
+                </div>
+                <div style="height: 1px; background: var(--border-light); margin: 4px 0;"></div>
+                <div class="dropdown-item" id="btn-logout-dropdown" style="padding: 12px 16px; display: flex; align-items: center; gap: 8px; color: var(--danger); font-size: 14px; transition: background 0.2s;">
+                  <i class='bx bx-log-out' style="font-size: 18px;"></i> تسجيل الخروج
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Views Container -->
+      <div class="page-content" id="views-container">
+        
+        <!-- Home Page Manager View -->
+        <section class="view-section active" id="view-home-manager">
+          <div class="grid-4" style="margin-bottom: 32px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px;">
+            <div class="card stat-card">
+              <div class="stat-icon primary"><i class='bx bx-joystick'></i></div>
+              <div class="stat-value" id="stat-total-games">0</div>
+              <div class="stat-label">إجمالي الألعاب</div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon success"><i class='bx bx-category'></i></div>
+              <div class="stat-value" id="stat-total-cats">0</div>
+              <div class="stat-label">إجمالي الأقسام</div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon warning"><i class='bx bx-image'></i></div>
+              <div class="stat-value" id="stat-total-banners">0</div>
+              <div class="stat-label">إجمالي البنرات</div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon danger"><i class='bx bx-server'></i></div>
+              <div class="stat-value" id="stat-total-storage">0 MB</div>
+              <div class="stat-label">مساحة التخزين</div>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="card" style="grid-column: span 2;">
+              <div class="card-header">
+                <h2 class="card-title">أحدث الألعاب المضافة</h2>
+                <button class="btn btn-secondary" onclick="app.navigate('games')">عرض الكل</button>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>اسم اللعبة</th>
+                      <th>القسم</th>
+                      <th>الحالة</th>
+                    </tr>
+                  </thead>
+                  <tbody id="recent-games-tbody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">إجراءات سريعة</h2>
+              </div>
+              <div class="action-list">
+                <div class="action-item" onclick="app.games.openEditor()">
+                  <div class="action-item-icon"><i class='bx bx-plus'></i></div>
+                  <span class="action-item-text">إضافة لعبة</span>
+                </div>
+                <div class="action-item" onclick="app.categories.openEditor()">
+                  <div class="action-item-icon"><i class='bx bx-folder-plus'></i></div>
+                  <span class="action-item-text">إضافة قسم</span>
+                </div>
+                <div class="action-item" onclick="app.banners.openEditor()">
+                  <div class="action-item-icon"><i class='bx bx-image-add'></i></div>
+                  <span class="action-item-text">إضافة بنر</span>
+                </div>
+                <div class="action-item" onclick="app.navigate('statistics')">
+                  <div class="action-item-icon" style="color: var(--primary); background: var(--primary-light);"><i class='bx bx-bar-chart-alt-2'></i></div>
+                  <span class="action-item-text">تقارير مفصلة</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Games View -->
+        <section class="view-section" id="view-games">
+          <div class="card">
+            <div class="card-header">
+              <div style="display: flex; gap: 16px;">
+                <button class="btn btn-primary" id="btn-add-game" onclick="app.games.openEditor()">
+                  <i class='bx bx-plus'></i> إضافة لعبة
+                </button>
+                <select id="games-bulk-action" class="form-control" style="width: 150px; padding: 4px 8px;">
+                  <option value="">إجراء جماعي</option>
+                  <option value="delete">حذف</option>
+                  <option value="status_active">تفعيل</option>
+                  <option value="status_hidden">إخفاء</option>
+                </select>
+                <button class="btn btn-secondary" id="btn-apply-bulk">تطبيق</button>
+              </div>
+              <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="search-box" style="display: block;">
+                  <i class='bx bx-search search-icon'></i>
+                  <input type="text" placeholder="ابحث عن الألعاب...">
+                </div>
+                <select id="games-filter-category" class="form-control" style="width: 200px; padding: 4px 8px;">
+                  <option value="">كل الأقسام</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="games-select-all"></th>
+                    <th class="sortable" data-sort="name">الصورة / اسم اللعبة <i class='bx bx-sort'></i></th>
+                    <th class="sortable" data-sort="category">القسم <i class='bx bx-sort'></i></th>
+                    <th class="sortable" data-sort="views">عدد المشاهدات <i class='bx bx-sort'></i></th>
+                    <th class="sortable" data-sort="status">الحالة <i class='bx bx-sort'></i></th>
+                    <th class="sortable" data-sort="date">تاريخ الإضافة <i class='bx bx-sort'></i></th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="games-table-tbody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Game Editor View -->
+        <section class="view-section" id="view-game-editor">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <button class="btn btn-secondary" id="btn-cancel-game">
+              <i class='bx bx-x'></i> إلغاء والعودة
+            </button>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn-secondary" id="btn-preview-game"><i class='bx bx-show'></i> معاينة</button>
+              <button class="btn btn-secondary" id="btn-save-game-another"><i class='bx bx-plus'></i> حفظ وإضافة أخرى</button>
+              <button class="btn btn-primary" id="btn-save-game"><i class='bx bx-save'></i> حفظ اللعبة</button>
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div style="grid-column: span 2;">
+              <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header"><h2 class="card-title">المعلومات الأساسية</h2></div>
+                <input type="hidden" id="game-id">
+                <div class="form-group">
+                  <label class="form-label">اسم اللعبة</label>
+                  <input type="text" class="form-control" id="game-name" placeholder="مثال: مغامرات الرياضيات">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">الوصف</label>
+                  <textarea class="form-control" id="game-description" placeholder="وصف اللعبة..."></textarea>
+                </div>
+                <div class="grid-2">
+                  <div class="form-group">
+                    <label class="form-label">التصنيف (Main Category)</label>
+                    <select class="form-control" id="game-category">
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">علامات اللعبة (Flags)</label>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                      <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;"><input type="checkbox" id="game-featured"> ⭐ مميز (Featured)</label>
+                      <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;"><input type="checkbox" id="game-popular"> 🔥 شائع (Popular)</label>
+                      <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;"><input type="checkbox" id="game-recommended"> 👍 موصى به (Recommended)</label>
+                      <label style="display: flex; align-items: center; gap: 4px; font-size: 13px;"><input type="checkbox" id="game-new_game"> 🆕 جديد (New)</label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">رابط اللعبة (HTML5)</label>
+                  <input type="text" class="form-control" id="game-url" placeholder="https://example.com/games/math/index.html">
+                </div>
+                
+                <div class="form-group">
+                  <label class="form-label">رابط البنر (Banner URL)</label>
+                  <input type="text" class="form-control" id="game-banner-url" placeholder="https://example.com/banner.png">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header"><h2 class="card-title">الوسائط</h2></div>
+                <div class="form-group">
+                  <label class="form-label">صورة اللعبة (Thumbnail)</label>
+                  <div class="image-uploader" id="game-image-uploader">
+                    <i class='bx bx-cloud-upload'></i>
+                    <p>انقر أو اسحب الصورة هنا</p>
+                    <p style="font-size: 12px; margin-top: 4px;">المقاس الموصى به: 512x512</p>
+                  </div>
+
+                  <input type="hidden" id="game-thumb-base64">
+                  
+                  <div style="margin-top: 16px;">
+                    <label class="form-label">أو أدخل رابط الصورة (URL)</label>
+                    <input type="url" class="form-control" id="game-thumb-url" placeholder="https://example.com/image.png">
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h2 class="card-title">الرؤية والخيارات</h2></div>
+                
+                <div class="flex-between" style="margin-bottom: 16px;">
+                  <span class="form-label" style="margin: 0;">إظهار اللعبة</span>
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="game-status" checked>
+                    <span class="slider"></span>
+                  </label>
+                </div>
+
+
+                <div class="form-group" style="margin-top: 24px; margin-bottom: 0;">
+                  <label class="form-label">ترتيب الظهور</label>
+                  <input type="number" id="game-order" class="form-control" value="0" min="0" step="1">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Category Details View -->
+        <section class="view-section" id="view-category-details">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <button class="btn-icon" onclick="app.navigate('categories')"><i class='bx bx-right-arrow-alt' style="font-size: 24px;"></i></button>
+              <h2 class="section-title" id="cat-details-title">تفاصيل القسم</h2>
+            </div>
+            <button class="btn btn-primary" onclick="app.games.openEditor()"><i class='bx bx-plus'></i> إضافة لعبة للقسم</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">ألعاب القسم</h2>
+              <p style="font-size: 14px; color: var(--text-muted); margin-top: 8px;">يمكنك إعادة ترتيب الألعاب بسحبها وإفلاتها.</p>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th><i class='bx bx-move'></i></th>
+                    <th>اللعبة</th>
+                    <th>الحالة</th>
+                    <th>إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="cat-details-games-tbody" class="sortable-list">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+
+
+        <!-- Categories View -->
+        <section class="view-section" id="view-categories">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <div style="display: flex; gap: 16px;">
+              <div class="search-box">
+                <i class='bx bx-search search-icon'></i>
+                <input type="text" id="categories-search" placeholder="البحث في الأقسام...">
+              </div>
+              <select id="categories-bulk-action" class="form-control" style="width: 150px; padding: 4px 8px;">
+                <option value="">إجراء جماعي</option>
+                <option value="delete">حذف</option>
+                <option value="status_active">تفعيل</option>
+                <option value="status_hidden">إخفاء</option>
+              </select>
+              <button class="btn btn-secondary" id="btn-apply-bulk-categories">تطبيق</button>
+            </div>
+            <button class="btn btn-primary" id="btn-add-category"><i class='bx bx-plus'></i> إضافة قسم جديد</button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="categories-select-all"></th>
+                    <th>صورة/أيقونة القسم</th>
+                    <th>اسم القسم بالعربية</th>
+
+                    <th>عدد الألعاب</th>
+                    <th>ترتيب القسم</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="categories-table-tbody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+            <div class="pagination" id="categories-pagination">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Category Editor View -->
+        <section class="view-section" id="view-category-editor">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <button class="btn btn-secondary" id="btn-cancel-category">
+              <i class='bx bx-x'></i> إلغاء والعودة
+            </button>
+            <div style="display: flex; gap: 12px;">
+              <button class="btn btn-primary" id="btn-save-category"><i class='bx bx-save'></i> حفظ القسم</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom: 24px;">
+            <div class="card-header"><h2 class="card-title">المعلومات الأساسية</h2></div>
+            <input type="hidden" id="category-id">
+            <div class="form-group">
+              <label class="form-label">اسم القسم بالعربية</label>
+              <input type="text" class="form-control" id="category-name-ar" placeholder="مثال: ألعاب الألغاز">
+            </div>
+            
+            <div class="flex-between" style="margin-bottom: 16px;">
+              <span class="form-label" style="margin: 0;">إظهار القسم</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="category-status" checked>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">الوسائط</h2></div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">صورة القسم (Cover)</label>
+                <div class="image-uploader" id="category-image-uploader">
+                  <i class='bx bx-cloud-upload'></i>
+                  <p>انقر أو اسحب الصورة هنا</p>
+                </div>
+                <input type="hidden" id="category-image-base64">
+              </div>
+              <div class="form-group">
+                <label class="form-label">أيقونة القسم (Icon)</label>
+                <div class="image-uploader" id="category-icon-uploader">
+                  <i class='bx bx-cloud-upload'></i>
+                  <p>انقر أو اسحب الأيقونة هنا</p>
+                </div>
+                <input type="hidden" id="category-icon-base64">
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+
+        <!-- Statistics View -->
+        <section class="view-section" id="view-statistics">
+          
+          <!-- Overview Cards -->
+          <div class="grid-4" style="margin-bottom: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <div class="card stat-card"><div class="stat-icon primary"><i class='bx bx-group'></i></div><div class="stat-value" id="stat-total-users">0</div><div class="stat-label">إجمالي المستخدمين</div></div>
+            <div class="card stat-card"><div class="stat-icon success"><i class='bx bx-user-check'></i></div><div class="stat-value" id="stat-active-users">0</div><div class="stat-label">المستخدمون النشطون اليوم</div></div>
+            <div class="card stat-card"><div class="stat-icon warning"><i class='bx bx-mobile-alt'></i></div><div class="stat-value" id="stat-app-opens">0</div><div class="stat-label">عدد مرات فتح التطبيق</div></div>
+            <div class="card stat-card"><div class="stat-icon danger"><i class='bx bx-joystick'></i></div><div class="stat-value" id="stat-game-plays">0</div><div class="stat-label">عدد مرات تشغيل الألعاب</div></div>
+            <div class="card stat-card"><div class="stat-icon primary"><i class='bx bx-heart'></i></div><div class="stat-value" id="stat-favorites">0</div><div class="stat-label">عدد الألعاب المفضلة</div></div>
+            <div class="card stat-card"><div class="stat-icon success"><i class='bx bx-time'></i></div><div class="stat-value" id="stat-avg-session">0s</div><div class="stat-label">متوسط وقت اللعب</div></div>
+            <div class="card stat-card"><div class="stat-icon warning"><i class='bx bx-chart'></i></div><div class="stat-value" id="stat-games-today">0</div><div class="stat-label">عدد الجلسات اليوم</div></div>
+          </div>
+
+          <!-- Charts Row 1 -->
+          <div class="grid-2" style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">عدد المستخدمين يومياً</h2></div>
+              <div style="height: 300px;"><canvas id="chart-daily-users"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">عدد مرات اللعب يومياً</h2></div>
+              <div style="height: 300px;"><canvas id="chart-daily-plays"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Charts Row 2 -->
+          <div class="grid-2" style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">أفضل 10 ألعاب</h2></div>
+              <div style="height: 300px;"><canvas id="chart-top-games"></canvas></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">أفضل الأقسام</h2></div>
+              <div style="height: 300px;"><canvas id="chart-top-categories"></canvas></div>
+            </div>
+          </div>
+
+          <!-- Tables Row -->
+          <div class="grid-2" style="margin-bottom: 24px; display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">🏆 أكثر الألعاب استخداماً</h2></div>
+              <div class="table-container">
+                <table class="table">
+                  <thead><tr><th>Game Image</th><th>Game Name</th><th>Category</th><th>Play Count</th><th>Unique Users</th><th>Average Play Time</th><th>Last Played</th></tr></thead>
+                  <tbody id="stats-games-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">أحدث النشاطات (Live)</h2></div>
+              <div style="max-height: 400px; overflow-y: auto;">
+                <ul id="stats-recent-activity" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Banners & Categories Row -->
+          <div class="grid-2" style="margin-bottom: 24px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">إحصائيات البنرات (CTR)</h2></div>
+              <div class="table-container">
+                <table class="table">
+                  <thead><tr><th>البنر</th><th>المشاهدات</th><th>النقرات</th><th>نسبة النقر (CTR)</th><th>آخر نقرة</th></tr></thead>
+                  <tbody id="stats-banners-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">نسب الأقسام</h2></div>
+              <div id="stats-categories-progress" style="display: flex; flex-direction: column; gap: 16px; margin-top: 16px;">
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+
+
+        <!-- Banners View -->
+        <section class="view-section" id="view-banners">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <div style="display: flex; gap: 16px;">
+              <div class="search-box">
+                <i class='bx bx-search search-icon'></i>
+                <input type="text" id="banners-search" placeholder="البحث في البنرات...">
+              </div>
+              <select id="banners-bulk-action" class="form-control" style="width: 150px; padding: 4px 8px;">
+                <option value="">إجراء جماعي</option>
+                <option value="delete">حذف</option>
+                <option value="status_active">تفعيل</option>
+                <option value="status_hidden">إخفاء</option>
+              </select>
+              <button class="btn btn-secondary" id="btn-apply-bulk-banners">تطبيق</button>
+            </div>
+            <button class="btn btn-primary" id="btn-add-banner"><i class='bx bx-plus'></i> إضافة بنر جديد</button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 40px;"><input type="checkbox" id="banners-select-all"></th>
+                    <th>صورة البنر</th>
+                    <th>العنوان الرئيسي</th>
+                    <th>العنوان الفرعي</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody id="banners-table-tbody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Banner Editor View -->
+        <section class="view-section" id="view-banner-editor">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <button class="btn-icon" id="btn-cancel-banner"><i class='bx bx-x' style="font-size: 24px;"></i></button>
+              <h2 class="section-title">إضافة / تعديل بنر</h2>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" id="btn-preview-banner"><i class='bx bx-show'></i> معاينة</button>
+              <button class="btn btn-primary" id="btn-save-banner"><i class='bx bx-save'></i> حفظ البنر</button>
+            </div>
+          </div>
+          
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">محتوى البنر</h2></div>
+              <input type="hidden" id="banner-id">
+              
+              <div class="form-group">
+                <label class="form-label">العنوان الرئيسي <span style="color: var(--danger)">*</span></label>
+                <input type="text" class="form-control" id="banner-title" placeholder="عنوان البنر">
+                <span class="error-msg" id="err-banner-title" style="color: var(--danger); font-size: 12px; display: none;">هذا الحقل مطلوب</span>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">العنوان الفرعي</label>
+                <input type="text" class="form-control" id="banner-subtitle">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">رابط اللعبة (Game URL)</label>
+                <input type="url" class="form-control" id="banner-url" placeholder="https://example.com/games/math/index.html">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">تسمية البنر (Banner Label)</label>
+                <select class="form-control" id="banner-label">
+                  <option value="normal">Normal</option>
+                  <option value="new">New</option>
+                  <option value="featured">Featured</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="display: flex; align-items: center; gap: 16px; margin-top: 24px;">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="banner-status" checked>
+                  <span class="slider"></span>
+                </label>
+                <span style="font-weight: 500;">تفعيل البنر</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">صورة البنر</h2></div>
+              <div class="form-group">
+                <div class="image-uploader" id="banner-image-uploader-editor" style="height: 200px;">
+                  <input type="file" accept="image/*" hidden id="banner-image-input">
+                  <i class='bx bx-cloud-upload'></i>
+                  <p>اسحب وأفلت الصورة هنا أو <span>تصفح</span></p>
+                  <p style="font-size: 12px; color: var(--text-light); margin-top: 8px;">القياس المفضل: 1200x600px</p>
+                </div>
+
+                <input type="hidden" id="banner-image-base64">
+                
+                <div style="margin-top: 16px;">
+                  <label class="form-label">أو أدخل رابط الصورة (URL)</label>
+                  <input type="url" class="form-control" id="banner-image-url" placeholder="https://example.com/banner.png">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Settings View -->
+        <section class="view-section" id="view-settings">
+          <div class="flex-between" style="margin-bottom: 24px;">
+            <h2 class="section-title">إعدادات النظام</h2>
+            <button class="btn btn-primary" id="btn-save-settings"><i class='bx bx-save'></i> حفظ الإعدادات</button>
+          </div>
+          
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">المعلومات الأساسية</h2></div>
+              <div class="form-group">
+                <label class="form-label">اسم التطبيق (Application Name)</label>
+                <input type="text" class="form-control" id="setting-app-name" placeholder="أدخل اسم التطبيق">
+              </div>
+              <div class="form-group">
+                <label class="form-label">إصدار التطبيق (Application Version)</label>
+                <input type="text" class="form-control" id="setting-app-version" placeholder="1.0.0">
+              </div>
+              <div class="form-group">
+                <label class="form-label">نص من نحن (About Text)</label>
+                <textarea class="form-control" id="setting-about-text" rows="4" placeholder="اكتب نبذة عن التطبيق..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">حقوق النشر (Copyright)</label>
+                <input type="text" class="form-control" id="setting-copyright" placeholder="© 2026 جميع الحقوق محفوظة">
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">الروابط والشعار</h2></div>
+              <div class="form-group">
+                <label class="form-label">رابط تليجرام (Telegram URL)</label>
+                <input type="url" class="form-control" id="setting-telegram-url" placeholder="https://t.me/yourchannel">
+              </div>
+              <div class="form-group">
+                <label class="form-label">رابط سياسة الخصوصية (Privacy Policy URL)</label>
+                <input type="url" class="form-control" id="setting-privacy-url" placeholder="https://example.com/privacy">
+              </div>
+              <div class="form-group">
+                <label class="form-label">رابط الدعم (Support URL)</label>
+                <input type="url" class="form-control" id="setting-support-url" placeholder="https://example.com/support">
+              </div>
+              <div class="form-group">
+                <label class="form-label">شعار التطبيق (Application Logo)</label>
+                <div class="image-uploader" id="setting-logo-uploader" style="min-height: 120px;">
+                  <i class='bx bx-cloud-upload'></i>
+                  <p>اسحب الصورة هنا أو انقر</p>
+                </div>
+                <input type="hidden" id="setting-logo-base64">
+                <div style="margin-top: 10px;">
+                  <label class="form-label" style="font-size: 12px;">أو رابط الصورة (URL)</label>
+                  <input type="url" id="setting-logo-url" class="form-control" placeholder="https://example.com/logo.png">
+                </div>
+              </div>
+              <div class="form-group" style="display: flex; align-items: center; gap: 16px; margin-top: 8px;">
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-maintenance-mode">
+                  <span class="slider"></span>
+                </label>
+                <span style="font-weight: 500;">وضع الصيانة (Maintenance Mode)</span>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h2 class="card-title">بيانات الاتصال والدعم</h2></div>
+              <div class="form-group">
+                <label class="form-label">البريد الإلكتروني للدعم (Support Email)</label>
+                <input type="email" class="form-control" id="setting-support-email" placeholder="support@example.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label">رابط الشروط والأحكام (Terms URL)</label>
+                <input type="url" class="form-control" id="setting-terms-url" placeholder="https://example.com/terms">
+              </div>
+              <div class="form-group">
+                <label class="form-label">معلومات الاتصال (Contact Info)</label>
+                <textarea class="form-control" id="setting-contact-info" rows="3" placeholder="عنوان الشركة، رقم الهاتف..."></textarea>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        <!-- Unified Preview Modal -->
+        <div id="preview-modal" class="modal-overlay hidden">
+          <div id="preview-modal-container" class="modal-content" style="background: var(--bg-card); width: 350px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative; overflow: hidden;">
+            <button id="btn-close-preview" class="btn-icon" style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.1); width: 32px; height: 32px; border-radius: 50%; z-index: 10;">
+              <i class='bx bx-x' style="font-size: 20px;"></i>
+            </button>
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h3 id="preview-modal-header-title" style="font-size: 14px; color: var(--text-muted); font-weight: 500;">معاينة</h3>
+            </div>
+            
+            <!-- Game Preview Container -->
+            <div id="preview-game-container" style="display: none;">
+              <div class="game-card" id="preview-game-card" style="background: var(--bg-body); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-light); position: relative;">
+                <div id="preview-modal-badges" style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; gap: 4px; flex-direction: column;">
+                </div>
+                <div style="width: 100%; height: 180px; position: relative;">
+                  <img id="preview-modal-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                  <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);"></div>
+                </div>
+                <div style="padding: 16px;">
+                  <h3 id="preview-modal-title" style="font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: var(--text-main);"></h3>
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                    <span style="font-size: 12px; color: var(--primary); background: var(--primary-light); padding: 4px 8px; border-radius: 6px; font-weight: 500;" id="preview-modal-category"></span>
+                    <span style="font-size: 12px; color: var(--text-muted);" id="preview-modal-section"></span>
+                  </div>
+                  <button id="preview-play-btn" class="btn btn-primary" style="width: 100%; border-radius: 12px; font-weight: 600;">العب الآن</button>
+                </div>
+              </div>
+              
+              <div id="preview-game-details" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-light);">
+                <p id="preview-modal-description" style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; text-align: right;"></p>
+                <div style="display: flex; justify-content: space-between; font-size: 13px;">
+                  <span style="color: var(--text-muted);">التصنيف:</span>
+                  <span style="font-weight: 600;" id="preview-modal-category-2"></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 8px;">
+                  <span style="color: var(--text-muted);">القسم:</span>
+                  <span style="font-weight: 600;" id="preview-modal-section-2"></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-top: 8px;">
+                  <span style="color: var(--text-muted);">ترتيب الظهور:</span>
+                  <span style="font-weight: 600;" id="preview-modal-order"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Banner Preview Container -->
+            <div id="preview-banner-container" style="display: none;">
+              <div class="banner-card" style="background: var(--bg-body); border-radius: 16px; overflow: hidden; border: 1px solid var(--border-light); position: relative; height: 250px;">
+                <div id="preview-banner-badges" style="position: absolute; top: 12px; right: 12px; z-index: 5; display: flex; gap: 4px; flex-direction: column;">
+                </div>
+                <img id="preview-banner-img" src="" style="width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;">
+                <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(0,0,0,0.8) 0%, transparent 100%);"></div>
+                
+                <div style="position: absolute; bottom: 0; right: 0; padding: 32px; width: 60%; color: white; z-index: 2; text-align: right;">
+                  <h2 id="preview-banner-title" style="font-size: 24px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.3;"></h2>
+                  <p id="preview-banner-subtitle" style="font-size: 14px; opacity: 0.9; line-height: 1.5;"></p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Profile Modals -->
+        <div id="edit-profile-modal" class="modal-overlay hidden">
+          <div class="modal-content" style="background: var(--bg-card); width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative;">
+            <button id="btn-close-profile-modal" class="btn-icon" style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.1); width: 32px; height: 32px; border-radius: 50%;">
+              <i class='bx bx-x' style="font-size: 20px;"></i>
+            </button>
+            <h3 style="margin-bottom: 24px; font-size: 18px;">تعديل الملف الشخصي</h3>
+            
+            <div class="form-group">
+              <label class="form-label">اسم المدير</label>
+              <input type="text" id="input-admin-name" class="form-control" placeholder="أدخل الاسم">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">اسم المستخدم (Username)</label>
+              <input type="text" id="input-admin-username" class="form-control" placeholder="أدخل اسم المستخدم">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">الدور / المنصب</label>
+              <input type="text" id="input-admin-role" class="form-control" placeholder="أدخل الدور (مثال: مدير عام)">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">البريد الإلكتروني</label>
+              <input type="email" id="input-admin-email" class="form-control" placeholder="أدخل البريد الإلكتروني">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">الصورة الشخصية (Avatar)</label>
+              <div class="image-uploader" id="admin-avatar-uploader" style="padding: 16px; min-height: auto;">
+                <i class='bx bx-cloud-upload' style="font-size: 24px; margin-bottom: 4px;"></i>
+                <p style="font-size: 12px; margin: 0;">اسحب الصورة هنا أو انقر</p>
+              </div>
+              <input type="hidden" id="input-admin-avatar-base64">
+              <div style="margin-top: 10px;">
+                <label class="form-label" style="font-size: 12px; margin-bottom: 4px;">أو رابط الصورة (URL)</label>
+                <input type="url" id="input-admin-avatar" class="form-control" placeholder="https://ui-avatars.com/...">
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button id="btn-save-profile" class="btn btn-primary" style="flex: 1;">حفظ التغييرات</button>
+              <button id="btn-cancel-profile" class="btn btn-secondary" style="flex: 1;">إلغاء</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="change-password-modal" class="modal-overlay hidden">
+          <div class="modal-content" style="background: var(--bg-card); width: 400px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); position: relative;">
+            <button id="btn-close-password-modal" class="btn-icon" style="position: absolute; top: 16px; left: 16px; background: rgba(0,0,0,0.1); width: 32px; height: 32px; border-radius: 50%;">
+              <i class='bx bx-x' style="font-size: 20px;"></i>
+            </button>
+            <h3 style="margin-bottom: 24px; font-size: 18px;">تغيير كلمة المرور</h3>
+            
+            <div class="form-group">
+              <label class="form-label">كلمة المرور الحالية</label>
+              <input type="password" id="input-current-password" class="form-control" placeholder="أدخل كلمة المرور الحالية">
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">كلمة المرور الجديدة</label>
+              <input type="password" id="input-new-password" class="form-control" placeholder="أدخل كلمة المرور الجديدة">
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 16px;">
+              <button id="btn-save-password" class="btn btn-primary" style="flex: 1;">تحديث كلمة المرور</button>
+              <button id="btn-cancel-password" class="btn btn-secondary" style="flex: 1;">إلغاء</button>
+            </div>
+          </div>
+        </div>
+
+    </main>
+  </div>
+
+
+
+  <!-- Chart.js for Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Data & Repositories -->
+  <script src="js/core/auth.js"></script>
+  <script src="js/data/repositories.js"></script>
+  <script src="js/ui-utils.js"></script>
+  <script src="js/uploader.js"></script>
+
+  <!-- Controllers & App -->
+  <script src="js/controllers/UIManager.js"></script>
+  <script src="js/controllers/PreviewManager.js"></script>
+  <script src="js/controllers/GamesManager.js"></script>
+  <script src="js/controllers/CategoriesManager.js"></script>
+  <script src="js/controllers/BannersManager.js"></script>
+  <script src="js/controllers/StatisticsManager.js"></script>
+  <script src="js/controllers/SettingsManager.js"></script>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
